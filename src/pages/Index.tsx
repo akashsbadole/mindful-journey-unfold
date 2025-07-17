@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,10 +9,13 @@ import { BreathingExercise } from "@/components/BreathingExercise";
 import { ProgressTracker } from "@/components/ProgressTracker";
 import { PodcastRadio } from "@/components/PodcastRadio";
 import { AudioPlayer } from "@/components/AudioPlayer";
+import { MeditationCategory } from "@/components/MeditationCategory";
 import { Footer } from "@/components/Footer";
+import { useAppStore } from "@/store/useAppStore";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("meditations");
+  const { selectedCategory, setSelectedCategory, userProgress } = useAppStore();
 
   const meditationCategories = [
     { name: "Stress Relief", icon: Heart, color: "bg-rose-100 text-rose-700", sessions: 25 },
@@ -68,6 +70,42 @@ const Index = () => {
     }
   ];
 
+  const handleCategoryClick = (categoryName: string) => {
+    setSelectedCategory(categoryName);
+  };
+
+  if (selectedCategory) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        {/* Header */}
+        <header className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                MindfulSpace
+              </h1>
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs sm:text-sm">
+                  {userProgress.currentStreak} day streak 🔥
+                </Badge>
+                <Button variant="outline" size="sm" className="text-xs sm:text-sm">Sign In</Button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="container mx-auto px-4 py-6 sm:py-8">
+          <MeditationCategory 
+            category={selectedCategory} 
+            onBack={() => setSelectedCategory(null)} 
+          />
+        </div>
+
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
@@ -79,7 +117,7 @@ const Index = () => {
             </h1>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs sm:text-sm">
-                7 day streak 🔥
+                {userProgress.currentStreak} day streak 🔥
               </Badge>
               <Button variant="outline" size="sm" className="text-xs sm:text-sm">Sign In</Button>
             </div>
@@ -127,6 +165,11 @@ const Index = () => {
                 Discover guided meditations, breathing exercises, and mindfulness practices 
                 designed to reduce stress and enhance well-being.
               </p>
+              <div className="flex justify-center gap-4 text-sm text-gray-500">
+                <span>{userProgress.totalSessions} sessions completed</span>
+                <span>•</span>
+                <span>{userProgress.totalMinutes} minutes practiced</span>
+              </div>
             </div>
 
             {/* Categories */}
@@ -136,7 +179,11 @@ const Index = () => {
                 {meditationCategories.map((category) => {
                   const IconComponent = category.icon;
                   return (
-                    <Card key={category.name} className="hover:shadow-lg transition-shadow cursor-pointer">
+                    <Card 
+                      key={category.name} 
+                      className="hover:shadow-lg transition-all cursor-pointer hover:scale-105 active:scale-95"
+                      onClick={() => handleCategoryClick(category.name)}
+                    >
                       <CardContent className="p-4 sm:p-6 text-center">
                         <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${category.color} flex items-center justify-center mx-auto mb-2 sm:mb-3`}>
                           <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" />

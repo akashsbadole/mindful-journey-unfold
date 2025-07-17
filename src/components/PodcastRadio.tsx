@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Play, Pause, SkipForward, SkipBack, Volume2, Radio, Headphones, Clock } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAppStore } from "@/store/useAppStore";
 
 export const PodcastRadio = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState<string | null>(null);
+  const { currentTrack, setCurrentTrack, togglePlayPause } = useAppStore();
 
   const podcasts = [
     {
+      id: "podcast-1",
       title: "The Mindful Moment",
       host: "Dr. Sarah Chen",
       duration: "25 min",
@@ -20,6 +21,7 @@ export const PodcastRadio = () => {
       category: "Daily Practice"
     },
     {
+      id: "podcast-2",
       title: "Meditation Science",
       host: "Prof. Michael Rivers",
       duration: "40 min", 
@@ -28,6 +30,7 @@ export const PodcastRadio = () => {
       category: "Education"
     },
     {
+      id: "podcast-3",
       title: "Sleep Stories & Sounds",
       host: "Emma Grace",
       duration: "30 min",
@@ -36,6 +39,7 @@ export const PodcastRadio = () => {
       category: "Sleep"
     },
     {
+      id: "podcast-4",
       title: "Anxiety & Stress Relief",
       host: "Dr. James Wilson",
       duration: "20 min",
@@ -47,30 +51,35 @@ export const PodcastRadio = () => {
 
   const radioStations = [
     {
+      id: "radio-1",
       name: "Calm Radio",
       genre: "Ambient Meditation",
       description: "24/7 peaceful meditation music and nature sounds",
       listeners: "12.5K"
     },
     {
+      id: "radio-2",
       name: "Mindful Beats",
       genre: "Binaural Beats",
       description: "Brainwave entrainment for focus and relaxation",
       listeners: "8.2K"
     },
     {
+      id: "radio-3",
       name: "Nature Sounds FM",
       genre: "Nature Audio",
       description: "Rain, ocean, forest and wildlife sounds",
       listeners: "15.8K"
     },
     {
+      id: "radio-4",
       name: "Zen Garden",
       genre: "Traditional",
       description: "Tibetan bowls, gongs, and traditional meditation music",
       listeners: "6.4K"
     },
     {
+      id: "radio-5",
       name: "Deep Focus",
       genre: "Concentration",
       description: "Background music designed for deep work and study",
@@ -80,6 +89,7 @@ export const PodcastRadio = () => {
 
   const recentEpisodes = [
     {
+      id: "episode-1",
       title: "Morning Intention Setting",
       podcast: "The Mindful Moment",
       duration: "12 min",
@@ -87,6 +97,7 @@ export const PodcastRadio = () => {
       plays: "2.1K"
     },
     {
+      id: "episode-2",
       title: "The Science of Gratitude",
       podcast: "Meditation Science", 
       duration: "35 min",
@@ -94,6 +105,7 @@ export const PodcastRadio = () => {
       plays: "1.8K"
     },
     {
+      id: "episode-3",
       title: "Forest Rain for Sleep",
       podcast: "Sleep Stories & Sounds",
       duration: "45 min",
@@ -101,6 +113,7 @@ export const PodcastRadio = () => {
       plays: "3.2K"
     },
     {
+      id: "episode-4",
       title: "Breathing Through Panic",
       podcast: "Anxiety & Stress Relief",
       duration: "18 min",
@@ -109,12 +122,16 @@ export const PodcastRadio = () => {
     }
   ];
 
-  const handlePlay = (trackId: string) => {
-    if (currentTrack === trackId && isPlaying) {
-      setIsPlaying(false);
+  const handlePlay = (trackId: string, title: string, type: 'podcast' | 'radio') => {
+    if (currentTrack?.id === trackId && currentTrack.isPlaying) {
+      togglePlayPause();
     } else {
-      setCurrentTrack(trackId);
-      setIsPlaying(true);
+      setCurrentTrack({
+        id: trackId,
+        title,
+        type,
+        isPlaying: true,
+      });
     }
   };
 
@@ -143,8 +160,8 @@ export const PodcastRadio = () => {
 
         <TabsContent value="podcasts" className="space-y-6">
           <div className="grid md:grid-cols-2 gap-6">
-            {podcasts.map((podcast, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
+            {podcasts.map((podcast) => (
+              <Card key={podcast.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
@@ -162,10 +179,10 @@ export const PodcastRadio = () => {
                     </div>
                     <Button
                       size="sm"
-                      onClick={() => handlePlay(`podcast-${index}`)}
+                      onClick={() => handlePlay(podcast.id, podcast.title, 'podcast')}
                       className="bg-gradient-to-r from-purple-500 to-pink-500"
                     >
-                      {currentTrack === `podcast-${index}` && isPlaying ? (
+                      {currentTrack?.id === podcast.id && currentTrack.isPlaying ? (
                         <><Pause className="w-4 h-4 mr-2" />Pause</>
                       ) : (
                         <><Play className="w-4 h-4 mr-2" />Play</>
@@ -180,8 +197,8 @@ export const PodcastRadio = () => {
 
         <TabsContent value="radio" className="space-y-6">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {radioStations.map((station, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
+            {radioStations.map((station) => (
+              <Card key={station.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center">
                     <Radio className="w-5 h-5 mr-2 text-red-500" />
@@ -199,9 +216,9 @@ export const PodcastRadio = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handlePlay(`radio-${index}`)}
+                      onClick={() => handlePlay(station.id, station.name, 'radio')}
                     >
-                      {currentTrack === `radio-${index}` && isPlaying ? (
+                      {currentTrack?.id === station.id && currentTrack.isPlaying ? (
                         <><Pause className="w-4 h-4 mr-2" />Stop</>
                       ) : (
                         <><Play className="w-4 h-4 mr-2" />Listen</>
@@ -222,8 +239,8 @@ export const PodcastRadio = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentEpisodes.map((episode, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                {recentEpisodes.map((episode) => (
+                  <div key={episode.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
                     <div className="flex-1">
                       <h4 className="font-medium">{episode.title}</h4>
                       <p className="text-sm text-gray-600">{episode.podcast}</p>
@@ -235,9 +252,9 @@ export const PodcastRadio = () => {
                       </Button>
                       <Button
                         size="sm"
-                        onClick={() => handlePlay(`episode-${index}`)}
+                        onClick={() => handlePlay(episode.id, episode.title, 'podcast')}
                       >
-                        {currentTrack === `episode-${index}` && isPlaying ? (
+                        {currentTrack?.id === episode.id && currentTrack.isPlaying ? (
                           <Pause className="w-4 h-4" />
                         ) : (
                           <Play className="w-4 h-4" />
@@ -265,10 +282,10 @@ export const PodcastRadio = () => {
                   <Headphones className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <div className="font-medium text-sm">Now Playing</div>
+                  <div className="font-medium text-sm">{currentTrack.title}</div>
                   <div className="text-xs text-gray-600">
-                    {currentTrack.includes('podcast') ? 'Podcast' : 
-                     currentTrack.includes('radio') ? 'Radio Station' : 'Episode'}
+                    {currentTrack.type === 'podcast' ? 'Podcast' : 'Radio Station'}
+                    {currentTrack.isPlaying ? ' • Playing' : ' • Paused'}
                   </div>
                 </div>
               </div>
@@ -279,10 +296,10 @@ export const PodcastRadio = () => {
                 </Button>
                 <Button
                   size="sm"
-                  onClick={() => setIsPlaying(!isPlaying)}
+                  onClick={togglePlayPause}
                   className="bg-blue-500 hover:bg-blue-600"
                 >
-                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                  {currentTrack.isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                 </Button>
                 <Button size="sm" variant="ghost">
                   <SkipForward className="w-4 h-4" />
@@ -296,7 +313,7 @@ export const PodcastRadio = () => {
             {/* Progress Bar */}
             <div className="mt-3">
               <div className="w-full bg-gray-200 rounded-full h-1">
-                <div className="bg-blue-500 h-1 rounded-full w-1/3"></div>
+                <div className="bg-blue-500 h-1 rounded-full w-1/3 transition-all duration-1000"></div>
               </div>
               <div className="flex justify-between text-xs text-gray-500 mt-1">
                 <span>2:15</span>
